@@ -1,10 +1,10 @@
 import type { Decision, EvaluationResult } from "../lib/types";
 
-const cfg: Record<Decision, { color: string; label: string; icon: string; ring?: string }> = {
-  PENDING: { color: "var(--text-muted)", label: "Pending", icon: "○" },
-  CONFIRMED: { color: "var(--release-green)", label: "Confirmed", icon: "✓" },
-  FLAGGED_FOR_RETEST: { color: "var(--rescue-amber)", label: "RETEST", icon: "⚡", ring: "2px solid var(--rescue-amber)" },
-  SITE_DRIFT_WATCH: { color: "var(--drift-purple)", label: "Drift Watch", icon: "◈" },
+const cfg: Record<Decision, { label: string; desc: string; color: string; bg: string }> = {
+  PENDING: { label: "Awaiting review", desc: "Not yet evaluated", color: "var(--text-muted)", bg: "transparent" },
+  CONFIRMED: { label: "Confirmed", desc: "Ready for release", color: "var(--release-green)", bg: "var(--release-green-bg)" },
+  FLAGGED_FOR_RETEST: { label: "Retest recommended", desc: "Assay discordance", color: "var(--rescue-amber)", bg: "var(--rescue-amber-bg)" },
+  SITE_DRIFT_WATCH: { label: "Drift watch", desc: "Cross-site trend", color: "var(--drift-purple)", bg: "var(--drift-purple-bg)" },
 };
 
 export default function BatchCard({ batchId, evaluation, isProcessing, isSelected, onClick, accentColor }: {
@@ -13,21 +13,44 @@ export default function BatchCard({ batchId, evaluation, isProcessing, isSelecte
 }) {
   const d = evaluation?.decision || "PENDING";
   const c = cfg[d];
+
   return (
-    <button onClick={onClick} className={`relative text-left p-4 rounded-xl border-2 transition-all hover:scale-[1.02] ${isProcessing ? "processing" : ""} ${evaluation?.is_likely_assay_noise ? "animate-pulse" : ""}`}
-      style={{ background: isSelected ? "var(--bg-surface-elevated)" : evaluation?.is_likely_assay_noise ? "var(--rescue-amber-dim)" : "var(--bg-surface)", borderColor: evaluation?.is_likely_assay_noise ? "var(--rescue-amber)" : isSelected ? c.color : "var(--border-subtle)", borderTopColor: accentColor, borderTopWidth: 4, boxShadow: evaluation?.is_likely_assay_noise ? "0 0 16px rgba(245,158,11,0.35)" : undefined }}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="font-mono text-sm font-semibold">{batchId}</span>
-        <div className="w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
+    <button onClick={onClick} data-tour={`batch-${batchId}`}
+      className={`text-left p-4 border transition-all w-full ${isProcessing ? "processing" : ""} ${isSelected ? "outline outline-1" : "hover:border-[var(--border-strong)]"}`}
+      style={{
+        background: isSelected ? "var(--bg-elevated)" : "var(--bg-surface)",
+        borderColor: isSelected ? accentColor : "var(--border-hairline)",
+        outlineColor: accentColor,
+      }}>
+      <div className="flex items-center justify-between mb-4">
+        <span className="font-mono text-sm tracking-tight">{batchId}</span>
+        <div className="flex items-center gap-1.5">
+          {evaluation?.source === "sandbox" && (
+            <span className="text-[9px] uppercase tracking-widest px-1 py-0.5" style={{ background: "var(--drift-purple-bg)", color: "var(--drift-purple)" }}>Sim</span>
+          )}
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: accentColor }} />
+        </div>
       </div>
-      <div className="mb-2 text-3xl font-bold font-mono tabular-nums" style={{ color: evaluation ? c.color : "var(--text-muted)" }}>
-        {evaluation ? evaluation.validity_score.toFixed(2) : "—"}
+
+      <div className="inline-block px-2 py-1 text-[10px] uppercase tracking-widest mb-3" style={{ background: c.bg, color: c.color }}>
+        {c.label}
       </div>
-      <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider" style={{ color: c.color }}>
-        <span>{c.icon}</span><span>{c.label}</span>
-      </div>
+
+      {evaluation ? (
+        <>
+          <p className="font-mono text-2xl tabular-nums mb-1" style={{ color: "var(--text-primary)" }}>
+            {(evaluation.validity_score * 100).toFixed(0)}<span className="text-sm ml-1" style={{ color: "var(--text-muted)" }}>/100</span>
+          </p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{c.desc}</p>
+        </>
+      ) : (
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>—</p>
+      )}
+
       {evaluation?.is_likely_assay_noise && (
-        <div className="mt-2 text-xs font-bold font-mono px-2 py-1.5 rounded border" style={{ background: "var(--rescue-amber)", color: "#000", borderColor: "#fff" }}>⚡ ASSAY NOISE — RETEST</div>
+        <p className="mt-3 text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--rescue-amber)" }}>
+          Assay noise suspected
+        </p>
       )}
     </button>
   );
