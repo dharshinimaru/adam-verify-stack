@@ -1,0 +1,39 @@
+{
+  "site": "Site B",
+  "unitNotes": {
+    "viableCellDensityTrajectory": "million viable cells/mL, days 1-6",
+    "expansionKinetics": "population doubling time (hours), days 1-6; Site B internal spec < 30h",
+    "metabolicMarkers": "metabolic stability index 0-1, days 1-6",
+    "potencyAssayResult": "release assay at harvest; pass threshold score >= 50"
+  },
+  "batches": [
+    {
+      "batchId": "B-201",
+      "viableCellDensityTrajectory": [0.8, 1.5, 2.9, 5.4, 9.1, 10.6],
+      "expansionKinetics": [25.2, 25.0, 25.3, 25.1, 25.4, 25.2],
+      "metabolicMarkers": [0.82, 0.83, 0.84, 0.83, 0.84, 0.83],
+      "potencyAssayResult": { "result": "pass", "score": 58 }
+    },
+    {
+      "batchId": "B-202",
+      "viableCellDensityTrajectory": [0.8, 1.4, 2.8, 5.2, 8.8, 10.2],
+      "expansionKinetics": [25.6, 25.4, 25.7, 25.5, 25.8, 25.6],
+      "metabolicMarkers": [0.81, 0.82, 0.83, 0.82, 0.83, 0.82],
+      "potencyAssayResult": { "result": "pass", "score": 55 }
+    },
+    {
+      "batchId": "B-203",
+      "viableCellDensityTrajectory": [0.8, 1.4, 2.7, 5.0, 8.5, 9.8],
+      "expansionKinetics": [25.5, 26.2, 26.8, 27.4, 28.0, 28.6],
+      "metabolicMarkers": [0.80, 0.79, 0.78, 0.77, 0.76, 0.75],
+      "potencyAssayResult": { "result": "pass", "score": 53 }
+    },
+    {
+      "batchId": "B-204",
+      "viableCellDensityTrajectory": [0.8, 1.3, 2.5, 4.6, 7.8, 9.0],
+      "expansionKinetics": [27.0, 27.6, 28.2, 28.7, 29.1, 29.5],
+      "metabolicMarkers": [0.78, 0.76, 0.74, 0.72, 0.70, 0.68],
+      "potencyAssayResult": { "result": "pass", "score": 51 }
+    }
+  ]
+}
