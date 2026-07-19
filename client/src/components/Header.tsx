@@ -5,37 +5,48 @@ export default function Header({ isRunning, hasRun, onRun, valueProtected, batch
   batchesProcessed: number; totalBatches: number; viewMode: ViewMode; onViewModeChange: (m: ViewMode) => void;
 }) {
   return (
-    <div className="flex items-center justify-between flex-wrap gap-4">
+    <header className="flex items-center justify-between gap-6 py-5 border-b" style={{ borderColor: "var(--border-hairline)" }}>
       <div>
-        <h1 className="text-2xl font-bold">Adam Verify</h1>
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Cross-site cell & gene therapy QC</p>
+        <p className="section-label mb-1">Independent verification</p>
+        <h1 className="font-display text-2xl md:text-3xl font-medium tracking-tight" style={{ color: "var(--text-primary)" }}>
+          Adam Verify
+        </h1>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: "var(--border-subtle)" }}>
+
+      <div className="flex items-center gap-5 flex-wrap justify-end">
+        <nav className="flex border" style={{ borderColor: "var(--border-hairline)" }}>
           {(["operations", "customer"] as ViewMode[]).map(m => (
-            <button key={m} onClick={() => onViewModeChange(m)} className="px-4 py-1.5 text-xs font-medium capitalize"
-              style={{ background: viewMode === m ? "var(--accent-blue)" : "var(--bg-surface)", color: viewMode === m ? "#000" : "var(--text-muted)" }}>
-              {m === "customer" ? "Sponsor Report" : "Operations"}
+            <button key={m} onClick={() => onViewModeChange(m)}
+              className="px-4 py-2 text-xs tracking-wide transition-colors"
+              style={{
+                background: viewMode === m ? "var(--bg-elevated)" : "transparent",
+                color: viewMode === m ? "var(--text-primary)" : "var(--text-muted)",
+                borderRight: m === "operations" ? "1px solid var(--border-hairline)" : undefined,
+              }}>
+              {m === "customer" ? "Sponsor report" : "Operations"}
             </button>
           ))}
-        </div>
-        {hasRun && (
-          <>
-            <div className="text-right">
-              <div className="text-xs uppercase" style={{ color: "var(--text-muted)" }}>Value protected</div>
-              <div className="text-2xl font-bold font-mono" style={{ color: "var(--release-green)" }}>${valueProtected.toLocaleString()}</div>
+        </nav>
+
+        {hasRun && !isRunning && (
+          <div className="hidden md:flex gap-6 text-right">
+            <div data-tour="value-protected">
+              <p className="section-label">Value protected</p>
+              <p className="font-mono text-lg" style={{ color: "var(--release-green)" }}>${valueProtected.toLocaleString()}</p>
             </div>
-            <div className="text-right">
-              <div className="text-xs uppercase" style={{ color: "var(--text-muted)" }}>Processed</div>
-              <div className="text-2xl font-bold font-mono">{batchesProcessed}/{totalBatches}</div>
+            <div>
+              <p className="section-label">Batches reviewed</p>
+              <p className="font-mono text-lg">{batchesProcessed}/{totalBatches}</p>
             </div>
-          </>
+          </div>
         )}
-        <button onClick={onRun} disabled={isRunning} className="px-6 py-3 rounded-lg text-sm font-semibold disabled:opacity-50"
-          style={{ background: isRunning ? "var(--bg-surface-elevated)" : "var(--accent-blue)", color: isRunning ? "var(--text-muted)" : "#000" }}>
-          {isRunning ? "Running..." : hasRun ? "Re-run" : "Run Verification"}
+
+        <button onClick={onRun} disabled={isRunning}
+          className="px-5 py-2.5 text-sm tracking-wide transition-opacity disabled:opacity-40"
+          style={{ background: "var(--text-primary)", color: "var(--bg-primary)" }}>
+          {isRunning ? "Review in progress…" : hasRun ? "Run again" : "Start review"}
         </button>
       </div>
-    </div>
+    </header>
   );
 }

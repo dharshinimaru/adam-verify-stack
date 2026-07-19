@@ -1,26 +1,35 @@
 import type { Batch } from "../lib/types";
+import { isTelemetryHealthy } from "../lib/sandbox";
+import GoldenEnvelopeChart from "./GoldenEnvelopeChart";
 
 export default function AssayVsTelemetryView({ batch }: { batch: Batch }) {
-  if (batch.potencyAssayResult.result !== "fail") return null;
-  const healthy = batch.expansionKinetics[5] < 26 && batch.metabolicMarkers[5] > 0.75;
-  if (!healthy) return null;
+  const telemetryHealthy = isTelemetryHealthy(batch);
+  const assayFailed = batch.potencyAssayResult.result === "fail";
+  const discordant = assayFailed && telemetryHealthy;
+
   return (
-    <div className="mt-4 rounded-lg overflow-hidden border" style={{ borderColor: "var(--border-subtle)" }}>
-      <div className="grid grid-cols-2">
-        <div className="p-4" style={{ background: "var(--reject-red-dim)" }}>
-          <div className="text-xs uppercase mb-2" style={{ color: "var(--text-muted)" }}>Release Assay</div>
-          <div className="text-2xl font-bold font-mono" style={{ color: "var(--reject-red)" }}>{batch.potencyAssayResult.score}</div>
-          <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Below threshold 50</div>
+    <div className="mt-4" data-tour="assay-telemetry">
+      <GoldenEnvelopeChart batch={batch} />
+
+      {discordant && (
+        <div className="mt-3 border" style={{ borderColor: "var(--border-hairline)" }}>
+          <div className="grid grid-cols-2">
+            <div className="p-4 border-r" style={{ borderColor: "var(--border-hairline)" }}>
+              <p className="section-label mb-2">Release assay</p>
+              <p className="font-mono text-2xl" style={{ color: "var(--reject-red)" }}>{batch.potencyAssayResult.score}</p>
+              <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>Below threshold 50</p>
+            </div>
+            <div className="p-4" style={{ background: "var(--release-green-bg)" }}>
+              <p className="section-label mb-2">Telemetry</p>
+              <p className="font-mono text-lg" style={{ color: "var(--release-green)" }}>Healthy</p>
+              <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>Expansion {batch.expansionKinetics[5]}h</p>
+            </div>
+          </div>
+          <div className="p-3 text-center text-xs font-medium" style={{ background: "var(--rescue-amber-bg)", color: "var(--rescue-amber)" }}>
+            Discordant result → recommend confirmatory retest, not automatic disposal
+          </div>
         </div>
-        <div className="p-4" style={{ background: "var(--release-green-dim)" }}>
-          <div className="text-xs uppercase mb-2" style={{ color: "var(--text-muted)" }}>Process Telemetry</div>
-          <div className="text-2xl font-bold font-mono" style={{ color: "var(--release-green)" }}>Healthy</div>
-          <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Expansion {batch.expansionKinetics[5]}h — matches passing batches</div>
-        </div>
-      </div>
-      <div className="p-3 text-center text-xs font-medium" style={{ background: "var(--bg-surface-elevated)", color: "var(--rescue-amber)" }}>
-        Discordant → confirmatory retest, not disposal
-      </div>
+      )}
     </div>
   );
 }

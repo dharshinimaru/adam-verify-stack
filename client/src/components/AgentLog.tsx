@@ -1,35 +1,43 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { LogEntry } from "../lib/types";
 
 const colors: Record<string, string> = {
   info: "var(--text-secondary)", success: "var(--release-green)", warning: "var(--rescue-amber)",
-  error: "var(--reject-red)", drift: "var(--drift-purple)", action: "var(--accent-blue)", report: "var(--accent-blue)",
+  error: "var(--reject-red)", drift: "var(--drift-purple)", action: "var(--accent-warm)", report: "var(--text-primary)",
 };
 
 export default function AgentLog({ logs, isRunning }: { logs: LogEntry[]; isRunning: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => { ref.current?.scrollIntoView({ behavior: "smooth" }); }, [logs]);
+  const [open, setOpen] = useState(true);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [logs, open]);
+
   return (
-    <div className="mt-6">
-      <div className="flex items-center gap-2 mb-3">
-        <h2 className="text-xs uppercase" style={{ color: "var(--text-muted)" }}>Agent Log</h2>
-        {isRunning && <span className="text-xs" style={{ color: "var(--accent-blue)" }}>● Live</span>}
-      </div>
-      <div className="agent-log rounded-xl border p-4 overflow-y-auto font-mono text-[13px] leading-6" style={{ background: "var(--bg-surface)", borderColor: "var(--border-subtle)", height: 360 }}>
-        {!logs.length && <div className="flex items-center justify-center h-full" style={{ color: "var(--text-muted)" }}>Click Run Verification</div>}
-        {logs.map((log, i) => {
-          const parts = log.message.split(" ⟡ Gemini");
-          return (
-            <div key={i} className="flex gap-3">
-              <span className="shrink-0 tabular-nums" style={{ color: "var(--text-muted)" }}>{log.timestamp}</span>
-              <span style={{ color: colors[log.type] || "var(--text-secondary)" }}>
-                {parts[0]}{parts.length > 1 && <span style={{ color: "var(--accent-blue)" }}> ⟡ Gemini</span>}
-              </span>
+    <section className="panel mt-px">
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between p-5 text-left">
+        <div>
+          <p className="section-label">Agent reasoning</p>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+            {isRunning ? "Live evaluation log" : logs.length ? `${logs.length} entries` : "Starts when you run verification"}
+          </p>
+        </div>
+        <span className="text-xs tracking-widest" style={{ color: "var(--text-muted)" }}>{open ? "Hide" : "Show"}</span>
+      </button>
+
+      {open && (
+        <div className="agent-log border-t px-5 py-4 overflow-y-auto font-mono text-xs leading-6 max-h-72" style={{ borderColor: "var(--border-hairline)" }}>
+          {!logs.length && (
+            <p style={{ color: "var(--text-muted)" }}>The agent will stream its evaluation steps here.</p>
+          )}
+          {logs.map((log, i) => (
+            <div key={i} className="flex gap-4 py-0.5">
+              <span className="shrink-0 tabular-nums w-16" style={{ color: "var(--text-muted)" }}>{log.timestamp}</span>
+              <span style={{ color: colors[log.type] || "var(--text-secondary)" }}>{log.message}</span>
             </div>
-          );
-        })}
-        <div ref={ref} />
-      </div>
-    </div>
+          ))}
+          {isRunning && <span className="inline-block animate-pulse mt-2" style={{ color: "var(--accent-warm)" }}>▊</span>}
+          <div ref={bottomRef} />
+        </div>
+      )}
+    </section>
   );
 }

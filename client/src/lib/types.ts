@@ -18,7 +18,7 @@ export interface EvaluationResult {
   key_risk_factors: { factor: string; severity: number }[];
   is_likely_assay_noise?: boolean;
   confirmatory_action?: string;
-  source?: "gemini" | "fallback";
+  source?: "gemini" | "fallback" | "sandbox";
 }
 
 export interface CrossSiteResult {
